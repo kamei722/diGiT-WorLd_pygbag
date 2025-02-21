@@ -2,10 +2,9 @@
 
 A simple action game built with pygame that uses changing digital digits.
 
-## Overview
+Language : Japanese
 
-dIGIT WorLd is a minimalistic action game where players navigate dynamic digital digits.
-The game is developed using Python and pygame.
+![](assets/demo/demo.gif)
 
 ## Requirements
 
@@ -28,8 +27,8 @@ or
 python3 game/main.py
 ```
 
-##　License
+## License
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-##　Credits
+## Credits
 BGM・効果音：Springin’ Sound Stock
