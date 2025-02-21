@@ -1,0 +1,54 @@
+{
+    "title": "gatiCOWNTDOWN",
+    "player_start": {
+      "x": 380,
+      "y": 430
+    },
+    "change_time": 1.0,
+    "digits": [
+      {
+        "x": 300,
+        "y": 180,
+        "initial_time": 1.0,
+        "width": 200,
+        "height": 400
+        
+      }
+    ],
+    "sequence": [9, 8, 7, 6, 5, 4, 3, 2, 1],
+    
+    "target_keys": 3,
+    "segment_properties_override": {
+        "D": { "one_way": false }
+    },
+  
+    "item_spawns": [
+         {
+           "index": 2,
+           "x": 270,
+           "y": 300,
+           "number":1,
+           "delay": 0.2,
+           "lifespan":1.0
+         },
+         {
+           "index": 4,
+           "x": 540, 
+           "y": 150,
+           "number":2,
+           "delay":0.3,
+           "lifespan":1.0
+         },
+         {
+           "index": 8,
+           "x": 220,
+           "y": 40,
+           "number":3,
+           "delay": 0.3,
+           "lifespan":1.0
+         }
+    ],
+  
+    "enemy_spawns": []
+  }
+  

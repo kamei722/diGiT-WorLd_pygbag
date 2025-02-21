@@ -1,0 +1,28 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller build artifacts
+build/
+dist/
+main.spec
+
+# OS X system files
+.DS_Store
+
+# Windows system files (if開発環境で混在する場合)
+Thumbs.db
+Desktop.ini
+
+# Virtual environment directories (任意で追加)
+venv/
+env/
+
+# その他、IDE やエディタが生成するファイル（必要に応じて）
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# 実行ファイルなど（もし他に不要なファイルがあれば追記）

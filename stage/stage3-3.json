@@ -1,0 +1,69 @@
+{
+    "title": "x^3",
+    "segment_properties_override": {
+        "A": { "one_way": false },
+        "G": { "one_way": false },
+        "D": { "one_way": false }
+    },
+    "player_start": {
+        "x": 430,
+        "y": 400
+    },
+    "target_keys": 3,
+    "digits": [
+        {
+            "x": 60,
+            "y": 200,
+            "width": 200,
+            "height": 394,
+            "sequence": [1, 1, 1, 1, 2, 2, 2, 3,3],
+            "start_number": 0,
+            "initial_time": 2.0
+        },
+        {
+            "x": 320,
+            "y": 200,   
+            "width": 200,
+            "height": 394,  
+            "sequence": [2, 4, 6, 9, 2, 5, 8, 2,6],
+            "start_number": 2,
+            "initial_time": 2.0
+        },
+        {
+            "x": 570,
+            "y": 200,
+            "width": 200,
+            "height": 394,
+            "sequence": [1, 4, 9, 6, 5, 6, 9, 4, 1],
+            "start_number": 5,
+            "initial_time": 2.0
+        }
+    ],
+    "item_spawns": [
+        
+        {
+            "digit_index":0,
+            "index": 1,
+            "x": 640,
+            "y": 500,
+            "number": 1,
+            "delay":1.8       },
+        {
+            "digit_index": 2,
+            "index": 5,
+            "x": 274,
+            "y": 335,
+            "number": 2,
+            "delay": 1.0
+        },
+        {
+            "digit_index": 2,
+            "index": 8,
+            "x": 400,
+            "y": 280,
+            "number": 3,
+            "delay": 0.75
+        }
+    ],
+    "enemy_spawns": []
+ }

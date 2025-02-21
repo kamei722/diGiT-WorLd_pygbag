@@ -1,0 +1,71 @@
+{
+    "title": "3,2,1発射",
+    "change_time": 2.0,
+    "player_start": {
+        "x": 670,
+        "y": 500
+    },
+    "target_keys": 3,
+    "segment_properties_override": {
+        "A": { "one_way": false },
+        "G": { "one_way": false },
+        "D": { "one_way": false }
+    },
+    "digits": [
+        {
+            "x": 80,
+            "y": 190,
+            "width": 200,
+            "height": 385,
+            "sequence": [null, null, 3, null, 2, null, 1, null, 0],
+            "start_number": null,
+            "initial_time": 2.0
+        },
+        {
+            "x": 330,
+            "y": 190,
+            "width": 200,
+            "height": 385,
+            "sequence": [null, 3, null, 2, null, 1, null, 0, null],
+            "start_number": null,
+            "initial_time": 2.0
+        },
+        {
+            "x": 570,
+            "y": 190,
+            "width": 200,
+            "height": 385,
+            "sequence": [3, null, 2, null, 1, null, 0, null, null],
+            "start_number": 0,
+            "initial_time": 2.0
+        }
+    ],
+    "item_spawns": [
+        
+        {
+            "digit_index": 0,
+            "index": 0,
+            "x": 410,
+            "y": 315,
+            "number": 1,
+            "delay": 1.1
+        },
+        {
+            "digit_index": 0,
+            "index": 3,
+            "x": 724,
+            "y": 190,
+            "number": 2,
+            "delay": 1.1
+        },
+        {
+            "digit_index": 2,
+            "index": 6,
+            "x": 410,
+            "y": 320,
+            "number": 3,
+            "delay": 0.6
+        }
+    ],
+    "enemy_spawns": []
+ }

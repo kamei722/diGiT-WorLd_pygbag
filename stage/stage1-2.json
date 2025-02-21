@@ -1,0 +1,49 @@
+{
+    "title": "COWNTDOWN",
+    "player_start": {
+      "x": 400,
+      "y": 300
+    },
+    "digits": [
+      {
+        "x": 300,
+        "y": 180,
+        "initial_time": 2.0,
+        "width": 200,
+        "height": 400
+      }
+    ],
+    "sequence": [9, 8, 7, 6, 5, 4, 3, 2, 1],
+    
+    "target_keys": 3,
+    "segment_properties_override": {
+        "D": { "one_way": false }
+    },
+  
+    "item_spawns": [
+         {
+           "index": 1,
+           "x": 384,
+           "y": 450,
+           "number":1,
+           "delay": 0.0
+         },
+         {
+           "index": 4,
+           "x": 384,
+           "y": 430,
+           "number":2,
+           "delay":0.6
+         },
+         {
+           "index": 8,
+           "x": 455,
+           "y": 80,
+           "number":3,
+           "delay": 0.1
+         }
+    ],
+  
+    "enemy_spawns": []
+  }
+  

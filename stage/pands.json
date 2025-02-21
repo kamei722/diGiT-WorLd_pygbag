@@ -1,0 +1,106 @@
+{
+    "title": "ps",
+    "change_time": 2.0,
+    "player_start": {
+        "x": 400,
+        "y": 20
+    },
+    "target_keys": 3,
+    "segment_properties_override": {
+        "D": { "one_way": false }
+    },
+    "digits": [
+        {
+            "x": 400,
+            "y": 20,
+            "width": 100,
+            "height": 100,
+            "sequence": ["-", "-", "-", "-", "-", "-", "-","-"],
+            "start_number": null,
+            "initial_time": 2.0
+        },
+        {
+            "x": 155,
+            "y": 180,
+            "width": 200,
+            "height": 400,
+            "sequence": ["P", "R", "O", "B", "L", "E", "M1",null],
+            "start_number": null,
+            "initial_time": 2.0
+        },
+        {
+            "x": 420,
+            "y": 180,
+            "width": 200,
+            "height": 400,
+            "sequence": ["S", "O","L", "U", "¯", "I", "0", "N1"],
+            "start_number": 1,
+            "initial_time": 2.0
+        },
+        {
+            "x": 228,
+            "y": 180,
+            "width": 175,
+            "height": 400,
+            "sequence": [null,null,null, null, null, null, "I",null],
+            "start_number": null,
+            "initial_time": 2.0
+        },
+
+        {
+            "x": 490,
+            "y": 180,
+            "width": 175,
+            "height": 400,
+            "sequence": [null,null,null, null, "I", null, null,null],
+            "start_number": null,
+            "initial_time": 2.0
+        },
+        {
+            "x": 450,
+            "y": 130,
+            "width": 80,
+            "height": 400,
+            "sequence": [null,null,null, null, null, null, null,"-"],
+            "start_number": null,
+            "initial_time": 2.0
+        },
+        {
+            "x": 515,
+            "y": 230,
+            "width": 80,
+            "height": 400,
+            "sequence": [null,null,null, null, null, null, null,"-"],
+            "start_number": null,
+            "initial_time": 2.0
+        }
+
+    ],
+    "item_spawns": [
+        {
+            "digit_index": 0,
+            "index": 1,
+            "x": 500,
+            "y": 480,
+            "number": 1,
+            "delay": 0.5
+        },
+        {
+            "digit_index": 1,
+            "index": 4,
+            "x": 371,
+            "y": 300,
+            "number": 2,
+            "delay": 0.3
+        },
+        {
+            "digit_index": 0,
+            "index": 7,
+            "x": 232,
+            "y": 500,
+            "number": 3,
+            "delay": 1.25
+        }
+    ],
+    "enemy_spawns": []
+} 

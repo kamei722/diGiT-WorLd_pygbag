@@ -1,0 +1,59 @@
+{
+    "title": "SQUARE NUMBERS",
+    "change_time": 2.0,
+    "player_start": {
+        "x": 589,
+        "y": 200
+    },
+    "target_keys": 3,
+    "segment_properties_override": {
+        "D": { "one_way": false }
+    },
+    "digits": [
+        {
+            "x": 155,
+            "y": 180,
+            "width": 200,
+            "height": 400,
+            "sequence": [null, null, null, 1, 2, 3, 4, 6, 8],
+            "start_number": null,
+            "initial_time": 2.0
+        },
+        {
+            "x": 419,
+            "y": 180,
+            "width": 200,
+            "height": 400,
+            "sequence": [1, 4, 9, 6, 5, 6, 9, 4, 1],
+            "start_number": 1,
+            "initial_time": 2.0
+        }
+    ],
+    "item_spawns": [
+        {
+            "digit_index": 0,
+            "index": 1,
+            "x": 500,
+            "y": 480,
+            "number": 1,
+            "delay": 0.5
+        },
+        {
+            "digit_index": 1,
+            "index": 4,
+            "x": 371,
+            "y": 300,
+            "number": 2,
+            "delay": 0.3
+        },
+        {
+            "digit_index": 0,
+            "index": 7,
+            "x": 232,
+            "y": 480,
+            "number": 3,
+            "delay": 1.25
+        }
+    ],
+    "enemy_spawns": []
+} 

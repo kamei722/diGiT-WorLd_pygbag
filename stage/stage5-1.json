@@ -1,0 +1,140 @@
+{
+    "title": "MESSAGE",
+    "change_time": 2.25,
+    "player_start": { "x": 700, "y": 350 },
+    "target_keys": 5,
+    "segment_properties_override": {
+        "D": { "one_way": false }
+    },
+    "digits": [
+      {
+        "x": 20,
+        "y": 250,
+        "width": 140,
+        "height": 280,
+        "sequence": ["H", "I", null, "E","G","D","U" ,"¯",null],
+        "start_number": 1,
+        "initial_time": 2.25
+      },
+      {
+        "x": 175,
+        "y": 250,
+        "width": 140,
+        "height": 280,
+        "sequence": ["E", "H", "Y", "N", "A", "I","O","H", "Y"],
+        "start_number": null,
+        "initial_time": 2.25
+      },
+      {
+        "x": 330,
+        "y": 250,
+        "width": 140,
+        "height": 280,
+        "sequence": ["L", "O", "O", "J", "M1","G","R" ,"A", "O"],
+        "start_number": 1,
+        "initial_time": 2.25
+      },
+      {
+        "x": 485,
+        "y": 250,
+        "width": 140,
+        "height": 280,
+        "sequence": ["L", "P", "U", "O", "E","I","L", "N", "U"],
+        "start_number": null,
+        "initial_time": 2.25
+      },
+
+      {
+        "x": 640,
+        "y": 250,
+        "width": 140,
+        "height": 280,
+        "sequence": ["O", "E", null, "Y", null, "¯","D", "K1", null],
+        "start_number": 1,
+        "initial_time": 2.25
+      },
+
+      {
+        "x": 70,
+        "y": 250,
+        "width": 140,
+        "height": 280,
+        "sequence": [null,null, null, null,null,null, "I", "I", null],  
+        "start_number": 1,
+        "initial_time": 2.25
+      },
+      {
+        "x": 380,
+        "y": 250,
+        "width": 140,
+        "height": 280,
+        "sequence": [null,null, null, null,"I", null, null,null,null],
+        "start_number": 1,
+        "initial_time": 2.25
+      },
+      {
+        "x": 690,
+        "y": 250,
+        "width": 140,
+        "height": 280,
+        "sequence": [null,null, null, null,null, "I",null,null,null],
+        "start_number": 1,
+        "initial_time": 2.25
+      },
+
+      {
+        "x": 700,
+        "y": 180,
+        "width": 60,
+        "height": 280,
+        "sequence": [null,null, null, null, null,null,null, "-", null],
+        "start_number": 1,
+        "initial_time": 2.25
+      }
+     
+    ],
+    "item_spawns": [
+      {
+        "digit_index": 0,
+        "index": 0,
+        "x": 550,
+        "y": 440,
+        "number": 1,
+        "delay": 0.1
+      },
+      {
+        "digit_index": 2,
+        "index": 2,
+        "x": 385,
+        "y": 430,
+        "number": 2,
+        "delay": 0
+      },
+      {
+        "digit_index": 4,
+        "index": 4,
+        "x": 80,
+        "y": 350,
+        "number": 3,
+        "delay": 0
+      },
+      {
+        "digit_index": 6,
+        "index": 5,
+        "x": 180,
+        "y": 230,
+        "number": 4,
+        "delay": 0
+      },
+      {
+        "digit_index": 0,
+        "index": 7,
+        "x": 720,
+        "y": 250,
+        "number": 5,
+        "delay": 0
+      }
+    ],
+    "enemy_spawns": []
+  }
+  

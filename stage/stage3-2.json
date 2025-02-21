@@ -1,0 +1,26 @@
+{
+    "player_start": { "x": 400, "y": 500 },
+    "change_time": 2.0,
+    "sequence": [2, 5, 2, 5, 2, 5, 2, 5],
+    "segment_properties_override": {
+        "A": { "one_way": false },
+        "G": { "one_way": false },
+        "D": { "one_way": false }
+    },
+    "target_keys": 3,
+    "digits": [
+        {
+            "x": 300,
+            "y": 180,
+            "initial_time": 2.0,
+            "width": 200,
+            "height": 380
+        }
+    ],
+    "item_spawns": [
+        { "index": 1, "x": 387, "y": 250, "number": 1, "delay": 1.2},
+        { "index": 3, "x": 595, "y": 20, "number": 2, "delay": 1.4 },
+        { "index": 6, "x": 387, "y": 30, "number": 3, "delay": 0.5,"lifespan": 3.5}
+    ],
+    "enemy_spawns": []
+}

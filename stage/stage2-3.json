@@ -1,0 +1,68 @@
+{
+    "title": "2^n",
+    "player_start": {
+        "x": 680,
+        "y": 150
+    },
+    "target_keys": 3,
+    "segment_properties_override": {
+        "D": { "one_way": false }
+    },
+    "digits": [
+        {
+            "x": 80,
+            "y": 190,
+            "width": 200,
+            "height": 400,
+            "sequence": [null, null, null, null, null, null, 1, 2,5],
+            "start_number": 0,
+            "initial_time": 2.0
+        },
+        {
+            "x": 330,
+            "y": 190,
+            "width": 200,
+            "height": 400,
+            "sequence": [null, null, null, 1, 3, 6, 2, 5,1],
+            "start_number": 2,
+            "initial_time": 2.0
+        },
+        {
+            "x": 570,
+            "y": 190,
+            "width": 200,
+            "height": 400,
+            "sequence": [2, 4, 8, 6, 2, 4, 8, 6,2],
+            "start_number": 5,
+            "initial_time": 2.0
+        }
+    ],
+    "item_spawns": [
+        
+        {
+            "digit_index": 1,
+            "index": 3,
+            "x": 255,
+            "y": 100,
+            "number": 1,
+            "delay":0.6
+        },
+        {
+            "digit_index": 2,
+            "index": 6,
+            "x": 535,
+            "y": 330,
+            "number": 2,
+            "delay": 0.4
+        },
+        {
+            "digit_index": 2,
+            "index": 8,
+            "x": 360,
+            "y": 0,
+            "number": 3,
+            "delay": 0.1
+        }
+    ],
+    "enemy_spawns": []
+ }

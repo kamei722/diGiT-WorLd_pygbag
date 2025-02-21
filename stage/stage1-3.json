@@ -1,0 +1,48 @@
+{
+    "title": "PI",
+    "player_start": {
+        "x": 380,
+        "y": 80
+    },
+    "digits": [
+        {
+            "x": 300,
+            "y": 170,
+            "initial_time": 2.0,
+            "width": 200,
+            "height": 400,
+            "start_number": 3
+        }
+    ],
+    "sequence": [3, 1, 4, 1, 5, 9, 2, 6, 5],
+    "target_keys": 3,
+    "segment_properties_override": {
+        "D": { "one_way": false }
+    },
+    
+    "item_spawns": [
+        {
+            "index": 1,
+            "x": 380,
+            "y": 280,
+            "number":1,
+            "delay": 1.6
+        },
+        {
+            "index": 4,
+            "x": 255,
+            "y": 390,
+            "number":2,
+            "delay": 1.3
+        },
+        {
+            "index": 7,
+            "x": 260,
+            "y": 300,
+            "number":3,
+            "delay": 1.0
+        }
+    ],
+    
+    "enemy_spawns": []
+}

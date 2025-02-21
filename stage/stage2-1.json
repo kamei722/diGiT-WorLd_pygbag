@@ -1,0 +1,58 @@
+{
+    "title": "MULTIPLY BY 2",
+    "player_start": {
+        "x": 500,
+        "y": 300
+    },
+    "target_keys": 3,
+    "segment_properties_override": {
+        "D": { "one_way": false }
+    },
+    "digits": [
+        {
+            "x": 100,
+            "y": 190,
+            "width": 200,
+            "height": 400,
+            "sequence": [null, null, null, null, 1, 1, 1, 1, 1],
+            "start_number": null,
+            "initial_time": 2.0
+        },
+        {
+            "x": 400,
+            "y": 190,
+            "width": 200,
+            "height": 400,
+            "sequence": [2, 4, 6, 8, 0, 2, 4, 6, 8],
+            "start_number": 2,
+            "initial_time": 2.0
+        }
+    ],
+    "item_spawns": [
+        {
+            "digit_index": 0,
+            "index": 2,
+            "x": 600,
+            "y": 180,
+            "number": 2,
+            "delay": 0.3
+        },
+        {
+            "digit_index": 0,
+            "index": 4,
+            "x": 260,
+            "y": 130,
+            "number": 3,
+            "delay": 0
+        },
+        {
+            "digit_index": 0,
+            "index": 8,
+            "x": 350,
+            "y": 30,
+            "number": 1,
+            "delay": 0.5
+        }
+    ],
+    "enemy_spawns": []
+}
