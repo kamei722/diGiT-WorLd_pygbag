@@ -2,7 +2,7 @@
     "title": "2^n",
     "player_start": {
         "x": 680,
-        "y": 150
+        "y": 170
     },
     "target_keys": 3,
     "segment_properties_override": {

@@ -8,7 +8,7 @@
     },
     "player_start": {
         "x": 500,
-        "y": 400
+        "y": 530
     },
     "target_keys": 3,
     "digits": [
