@@ -3,7 +3,6 @@
 import pygame
 import os
 import sys
-import threading
 import time
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -15,12 +14,40 @@ from game.game_utils import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, resource_path
 from game.managers.soundmanager import SoundManager
 from game.scenes.title_scene import TitleScene
 
-# 初期状態は False（読み込み未完了）
-loading_complete = False
+def main():
+    # Pygame の初期化
+    pygame.mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=256)
+    pygame.init()
+    pygame.mixer.init()
+    pygame.font.init()
 
-def load_resources(sound_manager):
-    global loading_complete
-    # サウンド設定（必要なリソースをここで読み込む）
+    # -------------------------------
+    # 1. スプラッシュ用の小さなウィンドウ作成
+    # -------------------------------
+    splash_size = (200, 200)  # 小さな正方形ウィンドウ
+    splash_screen = pygame.display.set_mode(splash_size)
+    pygame.display.set_caption("Loading...")
+
+    splash_path = resource_path("assets/pics/splash.png")
+    try:
+        splash_image = pygame.image.load(splash_path).convert()
+        splash_image = pygame.transform.scale(splash_image, splash_size)
+    except Exception as e:
+        print("Failed to load splash image:", e)
+        splash_image = None
+
+    if splash_image:
+        splash_screen.blit(splash_image, (0, 0))
+    else:
+        splash_screen.fill((0, 0, 0))
+    pygame.display.flip()
+
+    # -------------------------------
+    # 2. リソースをインクリメンタルに読み込む
+    # -------------------------------
+    sound_dir = resource_path("assets/sound")
+    sound_manager = SoundManager(sound_dir)
+
     sound_settings = {
         "jump":         ("jump.mp3", 0.05),
         "hit":          ("hit.mp3", 0.0),
@@ -39,64 +66,40 @@ def load_resources(sound_manager):
         "title_in":     ("title_in.mp3", 0.1),
         "spawn_one":    ("spawn_one.mp3", 0.02),
     }
-    for name, (filename, vol) in sound_settings.items():
-        sound_manager.load_sound(name, filename)
-        sound_manager.set_volume(name, vol)
-        # ※ここで、各サウンドの読み込みに時間がかかる実際の処理が走る
-    loading_complete = True
+    resources = list(sound_settings.items())
+    total_resources = len(resources)
+    loaded_count = 0
 
-def main():
-    global loading_complete
+    font = pygame.font.Font(None, 24)
 
-    # Pygameの初期化
-    pygame.mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=256)
-    pygame.init()
-    pygame.mixer.init()
-    pygame.font.init()
-
-    # -------------------------------
-    # 1. スプラッシュ用の小さなウィンドウ作成
-    # -------------------------------
-    splash_size = (200, 200)  # 小さな正方形のウィンドウ
-    splash_screen = pygame.display.set_mode(splash_size)
-    pygame.display.set_caption("Loading...")
-
-    splash_path = resource_path("assets/pics/splash.png")
-    try:
-        splash_image = pygame.image.load(splash_path).convert()
-        splash_image = pygame.transform.scale(splash_image, splash_size)
-    except Exception as e:
-        print("スプラッシュ画像の読み込みに失敗しました:", e)
-        splash_image = None
-
-    if splash_image:
-        splash_screen.blit(splash_image, (0, 0))
-    else:
-        splash_screen.fill((0, 0, 0))
-    pygame.display.flip()
-
-    # -------------------------------
-    # 2. リソース読み込み（サウンドなど）を別スレッドで開始
-    # -------------------------------
-    sound_dir = resource_path("assets/sound")
-    sound_manager = SoundManager(sound_dir)
-    loading_thread = threading.Thread(target=load_resources, args=(sound_manager,))
-    loading_thread.start()
-
-    # -------------------------------
-    # 3. 読み込みが完了するまでスプラッシュ画面を表示
-    # -------------------------------
-    while not loading_complete:
+    while resources:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-        # ※ここでアニメーションや進捗表示を追加することも可能
+
+        # 1件読み込み
+        name, (filename, vol) = resources.pop(0)
+        sound_manager.load_sound(name, filename)
+        sound_manager.set_volume(name, vol)
+        loaded_count += 1
+
+        # 進捗テキストの描画
+        # progress_text = f"Loading: {loaded_count}/{total_resources}"
+        # text_surface = font.render(progress_text, True, (255, 255, 255))
+        
+        if splash_image:
+            splash_screen.blit(splash_image, (0, 0))
+        else:
+            splash_screen.fill((0, 0, 0))
+        # text_rect = text_surface.get_rect(center=(splash_size[0] // 2, splash_size[1] - 30))
+        # splash_screen.blit(text_surface, text_rect)
         pygame.display.flip()
-        pygame.time.delay(10)  # CPU負荷軽減
+        
+        pygame.time.delay(100)  # 各リソース読み込み後に少し待機
 
     # -------------------------------
-    # 4. リソース読み込み完了後、通常のゲームウィンドウに切り替え
+    # 3. リソース読み込み完了後、通常のゲームウィンドウに切り替え
     # -------------------------------
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     game_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -107,7 +110,7 @@ def main():
     current_scene = TitleScene(game_screen, sound_manager)
 
     # -------------------------------
-    # 5. メインゲームループ
+    # 4. メインゲームループ
     # -------------------------------
     while current_scene.is_running:
         dt = clock.tick(FPS) / 1000.0
