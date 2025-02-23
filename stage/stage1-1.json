@@ -4,7 +4,7 @@
     "sequence": [2, 5, 2, 5, 2, 5, 2, 5],
     "target_keys": 3,
     "segment_properties_override": {
-        "D": { "one_way": true }
+        "D": { "one_way": false }
     },
     "digits": [
         {
