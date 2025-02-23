@@ -25,7 +25,7 @@
     "item_spawns": [
          {
            "index": 2,
-           "x": 280,
+           "x": 285,
            "y": 300,
            "number":1,
            "delay": 0.2,

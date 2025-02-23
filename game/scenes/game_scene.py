@@ -359,7 +359,7 @@ class GameScene(BaseScene):
 
         current_time = pygame.time.get_ticks()
         elapsed = current_time - self.peak_message_start_time
-        display_duration = 2000 
+        display_duration = 5000 
 
         if elapsed < display_duration:
             peak_font = pygame.font.Font(FONT_PATH, int(SCREEN_HEIGHT * 0.1))
