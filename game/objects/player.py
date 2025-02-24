@@ -187,50 +187,52 @@ class Player:
         Y軸方向の衝突解決のみ行う
         on_ground の更新や一方通行床での着地判定をここで行う
         """
-        self.on_ground = False  # いったん False として、足場が見つかれば True にする
+        self.on_ground = False  # まず足場が見つからなければ False にする
         player_rect = self.get_rect()
         is_down_pressed = (keys[pygame.K_DOWN] or keys[pygame.K_s])
 
         for digit in digits:
             for group_name, plat_rect, one_way in digit.get_platform_rects():
                 if one_way and is_down_pressed:
-                    # 下押し中は一方通行床をすり抜ける
+                    # 下キー押下中は一方向足場をすり抜ける
                     continue
 
                 if player_rect.colliderect(plat_rect):
                     overlap_x = min(player_rect.right, plat_rect.right) - max(player_rect.left, plat_rect.left)
                     overlap_y = min(player_rect.bottom, plat_rect.bottom) - max(player_rect.top, plat_rect.top)
 
-                    # 一方通行床の場合: プレイヤーが下向きに移動していて、
-                    # "上から降りてきた" ときのみ衝突判定をする
                     if one_way:
-                        # 1) プレイヤーが落下中 (velocity_y > 0)
-                        # 2) プレイヤーの足元が床の top をまたいだ
+                        # 一方向床の場合: 下向きに落下中で、上から降りてきたと判断できれば着地させる
                         player_above = (player_rect.bottom - overlap_y <= plat_rect.top)
-                        if (self.velocity_y > 0 and
-                            (player_above or
-                             (player_rect.bottom - self.velocity_y <= plat_rect.top and
-                              player_rect.bottom >= plat_rect.top))):
-                            # 足場の上に立つ
+                        if self.velocity_y > 0 and player_above:
                             self.y = plat_rect.top - self.height
                             self.velocity_y = 0
                             self.on_ground = True
                             self.coyote_timer = self.coyote_time
                     else:
-                        # 通常床の場合は overlap_y が優先
+                        # 通常床の場合の処理
                         if self.velocity_y > 0:
-                            # 下方向に衝突 -> 足場の上に乗る
-                            self.y = plat_rect.top - self.height
-                            self.velocity_y = 0
-                            self.on_ground = True
-                            self.coyote_timer = self.coyote_time
+                            # もしプレイヤーが完全にdigit内部にいるなら、つまり
+                            # プレイヤーの上端がプラットフォーム上端以上かつ
+                            # プレイヤーの下端がプラットフォーム下端以下なら
+                            if player_rect.top >= plat_rect.top and player_rect.bottom <= plat_rect.bottom:
+                                # 完全に内部にいる → 下方向へ押し出す
+                                self.y = plat_rect.bottom
+                                self.velocity_y = 0
+                            else:
+                                # それ以外は通常、上に補正して足場に乗せる
+                                self.y = plat_rect.top - self.height
+                                self.velocity_y = 0
+                                self.on_ground = True
+                                self.coyote_timer = self.coyote_time
                         else:
-                            # 上方向に衝突 -> 天井など
+                            # 上方向に移動中の場合は、天井などと衝突と判断して下方向へ補正
                             self.y = plat_rect.bottom
                             self.velocity_y = 0
 
-                    # y位置が変わったので rect を再作成
+                    # 補正後、更新されたプレイヤーの位置で再計算
                     player_rect = self.get_rect()
+
 
     def draw(self, screen, cam_x=0, cam_y=0):
         display_scale = 1.25
