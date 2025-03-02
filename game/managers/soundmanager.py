@@ -7,7 +7,7 @@ class SoundManager:
         self.sound_dir = sound_dir
         self.sounds = {}
         self.channels = {}
-        self.sound_on = True  # サウンドオン／オフの状態を管理
+        self.sound_on = True
         #print(f"[DEBUG] SoundManager initialized with sound directory: {self.sound_dir}")
 
     def load_sound(self, name, filename):
@@ -15,7 +15,6 @@ class SoundManager:
         try:
             sound = pygame.mixer.Sound(path)
             self.sounds[name] = sound
-            #print(f"[DEBUG] Loaded sound '{name}' from '{path}'")
         except pygame.error as e:
             pass
             #print(f"[DEBUG] Failed to load sound '{name}' from '{path}': {e}")
@@ -30,7 +29,6 @@ class SoundManager:
                 channel.play(sound)
             else:
                 sound.play()
-                #print(f"[DEBUG] Playing sound '{name}' on default channel")
         else:
             pass
 
@@ -44,7 +42,6 @@ class SoundManager:
 
     def toggle_sound(self):
         self.sound_on = not self.sound_on
-        #print(f"Sound toggled: {'ON' if self.sound_on else 'OFF'}")
 
     def play_music(self, file_name, loops=-1):
         if not self.sound_on:
@@ -58,8 +55,7 @@ class SoundManager:
                 pass
                 #print(f"Error loading music '{file_name}' from '{path}': {e}")
         else:
-            pass
-            #print(f"Music file '{path}' not found!")
+            pass            #print(f"Music file '{path}' not found!")
 
     def stop_music(self):
         pygame.mixer.music.stop()

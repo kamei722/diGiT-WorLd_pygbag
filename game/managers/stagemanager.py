@@ -325,10 +325,7 @@ class StageManager:
                     key_info["spawn_time"] = current_time
                     key_info["spawned"] = True
 
-    def _update_keys_and_enemies(self, dt, items, current_time, player):
-    
-        """キーのスポーンと消滅の処理（最終ステージではFinalKeyを使用）"""
-        
+    def _update_keys_and_enemies(self, dt, items, current_time, player):    
         for key_info in self.keys_to_spawn:
             if (key_info["spawned"] and key_info["spawn_time"] is not None and current_time >= key_info["spawn_time"]):
                 if self.final_stage:  
@@ -357,7 +354,6 @@ class StageManager:
                         items.remove(key)
                     self.consecutive_keys = 0
 
-        # **キー取得時の処理**
         for item in items:
             if isinstance(item, Key) and item.collected:
                 self.increment_consecutive_keys()

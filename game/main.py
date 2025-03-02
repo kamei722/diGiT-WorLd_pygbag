@@ -15,16 +15,15 @@ from game.managers.soundmanager import SoundManager
 from game.scenes.title_scene import TitleScene
 
 def main():
-    # Pygame の初期化
     pygame.mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=256)
     pygame.init()
     pygame.mixer.init()
     pygame.font.init()
 
     # -------------------------------
-    # 1. スプラッシュ用の小さなウィンドウ作成
+    # 1. 小さなウィンドウ作成
     # -------------------------------
-    splash_size = (200, 200)  # 小さな正方形ウィンドウ
+    splash_size = (200, 200)
     splash_screen = pygame.display.set_mode(splash_size)
     pygame.display.set_caption("Loading...")
 
@@ -43,7 +42,7 @@ def main():
     pygame.display.flip()
 
     # -------------------------------
-    # 2. リソースをインクリメンタルに読み込む
+    # 2. リソースを読み込む
     # -------------------------------
     sound_dir = resource_path("assets/sound")
     sound_manager = SoundManager(sound_dir)
@@ -78,15 +77,10 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-        # 1件読み込み
         name, (filename, vol) = resources.pop(0)
         sound_manager.load_sound(name, filename)
         sound_manager.set_volume(name, vol)
         loaded_count += 1
-
-        # 進捗テキストの描画
-        # progress_text = f"Loading: {loaded_count}/{total_resources}"
-        # text_surface = font.render(progress_text, True, (255, 255, 255))
         
         if splash_image:
             splash_screen.blit(splash_image, (0, 0))
@@ -106,7 +100,6 @@ def main():
     pygame.display.set_caption("dIGIT WorLd")
     clock = pygame.time.Clock()
 
-    # シーン（タイトルなど）を生成
     current_scene = TitleScene(game_screen, sound_manager)
 
     # -------------------------------

@@ -4,9 +4,8 @@ import copy
 
 class ProgressManager:
     def __init__(self):
-        # ユーザーのホームディレクトリをベースにする
+        # ホームディレクトリベース
         home_dir = os.path.expanduser("~")
-        # 例として、ホームディレクトリ内に ".digitworld" フォルダを作成する
         app_dir = os.path.join(home_dir, ".digitworld")
         os.makedirs(app_dir, exist_ok=True)
         self.save_path = os.path.join(app_dir, "progress.json")

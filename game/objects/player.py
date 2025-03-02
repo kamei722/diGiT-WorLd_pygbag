@@ -22,7 +22,7 @@ class Player:
         self.on_ground = False
         self.is_game_over = False
 
-        # コヨーテタイム関連
+        # 足場の待機時間
         self.coyote_time = 0.05
         self.coyote_timer = 0.0
 
@@ -30,13 +30,12 @@ class Player:
         self.sound_manager = sound_manager
         self.max_fall_speed = SCREEN_HEIGHT * 0.026
 
-        # 画像の読み込み・スケーリング
+        # 画像の読み込み
         self.image_right = pygame.image.load(os.path.join(BASE_DIR, "num_right.png")).convert_alpha()
         self.image_left = pygame.image.load(os.path.join(BASE_DIR, "num_left.png")).convert_alpha()
         self.image_right = pygame.transform.scale(self.image_right, (self.width, self.height))
         self.image_left = pygame.transform.scale(self.image_left, (self.width, self.height))
 
-        # 初期は右向き
         self.facing_left = False
 
     def set_debug_mode(self, enabled: bool):
@@ -52,19 +51,18 @@ class Player:
 
     def update(self, dt, keys, digits, space_pressed_this_frame, items=None, stage_manager=None):
         """
-        軸ごとに分けて衝突解決する実装例
         1) 入力による横方向速度の設定
         2) X軸移動 & 衝突解決
         3) コヨーテタイムとジャンプの処理
         4) Y軸移動 & 衝突解決
-        5) その他判定 (アイテム/画面外/...)
+        5) その他判定
         """
 
         # ----- 1) 入力による速度の設定 -----
         moving_left = any(keys[k] for k in MOVE_LEFT_KEYS)
         moving_right = any(keys[k] for k in MOVE_RIGHT_KEYS)
 
-        # 左右速度は毎フレーム更新 (今回は加速度ではなく定数速度)
+        # 左右速度は毎フレーム更新 (定数速度モデル)
         if moving_left and not moving_right:
             self.velocity_x = -self.speed
             self.facing_left = True
@@ -93,7 +91,6 @@ class Player:
                 self.x = SCREEN_WIDTH - self.width
 
         # ----- 3) コヨーテタイムとジャンプ処理 -----
-        # コヨーテタイムをカウントダウン
         if self.on_ground:
             self.coyote_timer = self.coyote_time
         else:
@@ -158,14 +155,14 @@ class Player:
 
     def handle_collision_x(self, digits, keys):
         """
-        X軸方向の衝突解決のみ行う
+        X方向の衝突解決
         """
         player_rect = self.get_rect()
         is_down_pressed = (keys[pygame.K_DOWN] or keys[pygame.K_s])
 
         for digit in digits:
             for group_name, plat_rect, one_way in digit.get_platform_rects():
-                # 一方通行の足場で、下キーを押しているなら無視
+                # 下キーの足場透過
                 if one_way and is_down_pressed:
                     continue
 
@@ -177,17 +174,15 @@ class Player:
                     # 通常床の場合は X 軸方向の押し戻し処理
                     if self.velocity_x > 0:  # 右に動いて衝突
                         self.x = plat_rect.left - self.width
-                    elif self.velocity_x < 0:  # 左に動いて衝突
+                    elif self.velocity_x < 0:
                         self.x = plat_rect.right
-                    # X位置が変わったので rect を再作成
                     player_rect = self.get_rect()
 
     def handle_collision_y(self, digits, keys):
         """
-        Y軸方向の衝突解決のみ行う
-        on_ground の更新や一方通行床での着地判定をここで行う
+        Y方向の衝突解決
         """
-        self.on_ground = False  # まず足場が見つからなければ False にする
+        self.on_ground = False
         player_rect = self.get_rect()
         is_down_pressed = (keys[pygame.K_DOWN] or keys[pygame.K_s])
 
@@ -202,7 +197,7 @@ class Player:
                     overlap_y = min(player_rect.bottom, plat_rect.bottom) - max(player_rect.top, plat_rect.top)
 
                     if one_way:
-                        # 一方向床の場合: 下向きに落下中で、上から降りてきたと判断できれば着地させる
+                        #下向きに落下中で、上から降りてきたと判断できれば着地させる
                         player_above = (player_rect.bottom - overlap_y <= plat_rect.top)
                         if self.velocity_y > 0 and player_above:
                             self.y = plat_rect.top - self.height
@@ -212,25 +207,21 @@ class Player:
                     else:
                         # 通常床の場合の処理
                         if self.velocity_y > 0:
-                            # もしプレイヤーが完全にdigit内部にいるなら、つまり
-                            # プレイヤーの上端がプラットフォーム上端以上かつ
-                            # プレイヤーの下端がプラットフォーム下端以下なら
                             if player_rect.top >= plat_rect.top and player_rect.bottom <= plat_rect.bottom:
                                 # 完全に内部にいる → 下方向へ押し出す
                                 self.y = plat_rect.bottom
                                 self.velocity_y = 0
                             else:
-                                # それ以外は通常、上に補正して足場に乗せる
+                                #　上に補正して足場に乗せる
                                 self.y = plat_rect.top - self.height
                                 self.velocity_y = 0
                                 self.on_ground = True
                                 self.coyote_timer = self.coyote_time
                         else:
-                            # 上方向に移動中の場合は、天井などと衝突と判断して下方向へ補正
                             self.y = plat_rect.bottom
                             self.velocity_y = 0
 
-                    # 補正後、更新されたプレイヤーの位置で再計算
+                    # 再計算
                     player_rect = self.get_rect()
 
 
@@ -242,6 +233,7 @@ class Player:
         draw_x = int(self.x - cam_x - (display_width - self.width) / 2)
         draw_y = int(self.y - cam_y - (display_height - self.height) / 2)
 
+        #　キャラクターの向き
         if self.facing_left:
             image_to_draw = pygame.transform.scale(self.image_left, (display_width, display_height))
         else:

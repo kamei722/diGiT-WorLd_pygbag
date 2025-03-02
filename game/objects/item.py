@@ -74,7 +74,6 @@ class FinalKey(Key):
         super().on_collect(player, stage_manager)
         if stage_manager:
             stage_manager.increment_consecutive_keys()
-        # **音を鳴らさない**
         #print(f"Final Key #{self.number} collected by player!")
 
 

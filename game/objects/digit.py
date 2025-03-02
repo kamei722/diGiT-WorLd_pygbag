@@ -171,11 +171,10 @@ class Digit:
                 st.active=False
         if all_done:
             self.is_transitioning=False
-            print("Digit transition completed")
+            #print("Digit transition completed")
 
-    # -----------------------------
+
     # A～G の矩形生成 (足場)
-    # -----------------------------
     def _get_segment_rects_AtoG(self):
         rects = {}
         thick_vert = int(self.width / 3.4)
@@ -205,7 +204,9 @@ class Digit:
                 int(self.height / 2 - thick_horz + 1)
             ), None
         )
-        offset_D = 7
+
+        # 隙間を埋めるための調整
+        offset_D = 7 
         rects["D"] = (
             pygame.Rect(
                 int(self.x + self.width * 0.1),
@@ -244,8 +245,7 @@ class Digit:
 
     def get_platform_rects(self):
         """
-        A～G だけで衝突判定
-        E,F も一体化して返す
+        接触の隙間を埋めるためのオブジェクト一体化処理
         """
 
         if not self.active:
@@ -309,13 +309,12 @@ class Digit:
         if not self.active:
             return
 
-        # カメラオフセットを整数に変換
+        # 最終ステージでのカメラオフセット
         cam_x = int(cam_x)
         cam_y = int(cam_y)
 
         base_rects = self._get_segment_rects_AtoG()
 
-        # キャッシュ用の辞書が存在しなければ初期化
         if not hasattr(self, "segment_surfaces"):
             self.segment_surfaces = {}
 
