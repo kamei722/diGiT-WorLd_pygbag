@@ -12,28 +12,28 @@
     "target_keys": 3,
     "digits": [
         {
-            "x": 60,
+            "x": 70,
             "y": 200,
-            "width": 200,
-            "height": 394,
+            "width": 180,
+            "height": 385,
             "sequence": [1, 1, 1, 1, 2, 2, 2, 3,3],
             "start_number": 0,
             "initial_time": 2.0
         },
         {
-            "x": 320,
+            "x": 330,
             "y": 200,   
-            "width": 200,
-            "height": 394,  
+            "width": 180,
+            "height": 385,  
             "sequence": [2, 4, 6, 9, 2, 5, 8, 2,6],
             "start_number": 2,
             "initial_time": 2.0
         },
         {
-            "x": 570,
+            "x": 560,
             "y": 200,
-            "width": 200,
-            "height": 394,
+            "width": 180,
+            "height": 385,
             "sequence": [1, 4, 9, 6, 5, 6, 9, 4, 1],
             "start_number": 5,
             "initial_time": 2.0
@@ -44,7 +44,7 @@
         {
             "digit_index":0,
             "index": 1,
-            "x": 640,
+            "x": 620,
             "y": 500,
             "number": 1,
             "delay":1.8       },
