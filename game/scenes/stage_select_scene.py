@@ -337,7 +337,7 @@ class StageSelectScene(BaseScene):
                 self.sound_manager.toggle_sound()
 
             # ステージ開始
-            elif event.key == pygame.K_RETURN:
+            elif event.key in [pygame.K_RETURN, pygame.K_SPACE]:
                 if self.progress_manager.is_stage_unlocked(self.selected_world, self.selected_stage):
                     if self.sound_manager:
                         self.sound_manager.play("stage_in")
