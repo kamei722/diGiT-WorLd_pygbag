@@ -5,7 +5,7 @@ import os
 import math
 import random
 from datetime import datetime
-from game.game_utils import SCREEN_WIDTH, SCREEN_HEIGHT, FONT_PATH
+from game.game_utils import SCREEN_WIDTH, SCREEN_HEIGHT, FONT_PATH,resource_path
 from .base_scene import BaseScene
 from game.objects.digit import Digit
 from game.objects.player import Player
@@ -103,7 +103,14 @@ class TitleScene(BaseScene):
         self.player = Player(x=player_start_x, y=player_start_y, sound_manager=sound_manager)
         
         # ガイドテキスト ("Press ENTER to Start")
-        self.guide_font = pygame.font.Font(FONT_PATH, int(SCREEN_HEIGHT * 0.03))
+        try:
+            font_full_path = resource_path(FONT_PATH)
+            self.guide_font = pygame.font.Font(font_full_path, int(SCREEN_HEIGHT * 0.03))
+        except Exception as e:
+            print(f"Failed to load font: {e}")
+            # フォントの読み込みに失敗した場合はデフォルトフォントを使用
+            self.guide_font = pygame.font.SysFont(None, int(SCREEN_HEIGHT * 0.03))
+            
         self.enter_blink_timer = 0.0
         
         # Sound Toggle Button (画面左上)
@@ -146,9 +153,17 @@ class TitleScene(BaseScene):
             d.update(dt)
         
         # 時計の更新
-        now = datetime.now()
-        hour = now.hour
-        minute = now.minute
+        try:
+            now = datetime.now()
+            hour = now.hour
+            minute = now.minute
+        except Exception:
+            # ブラウザ環境ではdatetimeが使えない場合がある
+            # 代替として固定値または現在のティックからの計算を使用
+            ticks = pygame.time.get_ticks() / 1000
+            minute = int((ticks / 60) % 60)
+            hour = int((ticks / 3600) % 24)
+            
         clock_vals = [hour // 10, hour % 10, minute // 10, minute % 10]
         for d, val in zip(self.clock_digits, clock_vals):
             d.set_number(val)
@@ -285,13 +300,13 @@ class TitleScene(BaseScene):
         self.screen.blit(toggle_surf, toggle_rect)
 
     def process_event(self, event):
+        #print(event)
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
+                print("[DEBUG] ENTER Pressed! Going to play sound...")
                 self.sound_manager.play("title_in")
                 from .stage_select_scene import StageSelectScene
                 self.next_scene = StageSelectScene(self.screen, self.sound_manager)
-            elif event.key == pygame.K_ESCAPE:
-                self.is_running = False
             elif event.key == pygame.K_v:
                 self.sound_manager.toggle_sound()
         elif event.type == pygame.MOUSEBUTTONDOWN:

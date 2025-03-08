@@ -133,7 +133,7 @@ class Digit:
                 st.alpha = 0
         self.is_transitioning = True
         self.current_number = new_number
-        self.transition_start_time = time.time()
+        self.transition_start_time = pygame.time.get_ticks() / 1000.0
 
     def update(self, dt):
         if not self.is_transitioning:

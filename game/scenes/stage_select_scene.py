@@ -48,10 +48,21 @@ class StageSelectScene(BaseScene):
         self.stage_area_margin = int(SCREEN_HEIGHT * 0.25)
         
         # フォント設定
-        self.title_font = pygame.font.Font(FONT_PATH, int(SCREEN_HEIGHT * 0.13))
-        self.stage_font = pygame.font.Font(FONT_PATH, int(self.stage_size * 0.45))
-        self.guide_font = pygame.font.Font(FONT_PATH, int(SCREEN_HEIGHT * 0.05))
-        self.sound_font = pygame.font.Font(FONT_PATH, int(SCREEN_HEIGHT * 0.03))
+        try:
+            full_font_path = resource_path(FONT_PATH)
+
+            self.title_font  = pygame.font.Font(full_font_path, int(SCREEN_HEIGHT * 0.13))
+            self.stage_font  = pygame.font.Font(full_font_path, int(self.stage_size * 0.45))
+            self.guide_font  = pygame.font.Font(full_font_path, int(SCREEN_HEIGHT * 0.05))
+            self.sound_font  = pygame.font.Font(full_font_path, int(SCREEN_HEIGHT * 0.03))
+            
+        except Exception as e:
+            print(f"Failed to load fonts: {e}")
+            # デフォルトフォントを使用
+            self.title_font = pygame.font.SysFont(None, int(SCREEN_HEIGHT * 0.13))
+            self.stage_font = pygame.font.SysFont(None, int(self.stage_size * 0.45))
+            self.guide_font = pygame.font.SysFont(None, int(SCREEN_HEIGHT * 0.05))
+            self.sound_font = pygame.font.SysFont(None, int(SCREEN_HEIGHT * 0.03))
         
         # 選択状態の初期化
         self.selected_world = current_world
@@ -61,7 +72,7 @@ class StageSelectScene(BaseScene):
         # ステージデータのパス生成
         # 例: "../stage/stage1-1.json"
         #self.stage_path = os.path.join(os.path.dirname(__file__), "..", "..", "stage", "stage{}-{}.json")
-        self.stage_path = os.path.join(resource_path("stage"), "stage{}-{}.json")
+        self.stage_path = "stage/stage{}-{}.json"
 
         self.stage_titles = {
             (1, 1): "にこにこ",
@@ -80,13 +91,20 @@ class StageSelectScene(BaseScene):
         }
 
         # ロックの表示
-        lock_image_path = os.path.join(resource_path("assets/pics"), "lock.png")
-        self.lock_image = pygame.image.load(lock_image_path).convert_alpha()
-
-        original_size = self.lock_image.get_size()
-        new_width = int(original_size[0] * scale_w)
-        new_height = int(original_size[1] * scale_h)
-        self.lock_image = pygame.transform.scale(self.lock_image, (new_width, new_height))
+        try:
+            lock_image_path = resource_path("assets/pics/lock.png")
+            self.lock_image = pygame.image.load(lock_image_path).convert_alpha()
+            
+            original_size = self.lock_image.get_size()
+            new_width = int(original_size[0] * scale_w)
+            new_height = int(original_size[1] * scale_h)
+            self.lock_image = pygame.transform.scale(self.lock_image, (new_width, new_height))
+        except Exception as e:
+            print(f"Failed to load lock image: {e}")
+            # フォールバック：簡易的な錠前アイコンを作成
+            self.lock_image = pygame.Surface((int(40 * scale_w), int(50 * scale_h)), pygame.SRCALPHA)
+            pygame.draw.rect(self.lock_image, (200, 200, 200), (0, 20, 40, 30))
+            pygame.draw.circle(self.lock_image, (200, 200, 200), (20, 15), 15)
 
         # すりぬけの注意書き
         if (self.selected_world == 3 and self.selected_stage in [1, 2, 3]) \
@@ -182,7 +200,6 @@ class StageSelectScene(BaseScene):
 
 
     def _draw_normal_world(self):
-        """通常ワールドの描画"""
         stage_area_start_y = self.title_area_height + self.stage_area_margin
         for stage in range(1, self.stages_per_world + 1):
             x = self.side_margin + (self.stage_size + self.stage_padding) * (stage - 1)
@@ -200,26 +217,53 @@ class StageSelectScene(BaseScene):
             text_rect = stage_text.get_rect(center=(x + self.stage_size // 2, y + self.stage_size // 2))
             self.screen.blit(stage_text, text_rect)
 
+            # ブラウザ環境では常に解放されているので、ロック表示は不要
             if not is_unlocked:
                 lock_rect = self.lock_image.get_rect(center=(x + self.stage_size // 2, y + self.stage_size // 2))
                 lock_rect.y += 10
                 self.screen.blit(self.lock_image, lock_rect)
 
-        # ヒント矢印を描画(↑world n)
-        if self.selected_world > 1 and self.progress_manager.progress["unlocked_stages"].get(str(self.selected_world - 1), []):
-            hint_text_up = self.guide_font.render("↑ World " + str(self.selected_world - 1), True, (255, 255, 255))
-            self.screen.blit(hint_text_up, (SCREEN_WIDTH - 200, self.title_area_height + 40))
-        if self.selected_world < 4 and self.progress_manager.progress["unlocked_stages"].get(str(self.selected_world + 1), []):
-            hint_text_down = self.guide_font.render("↓ World " + str(self.selected_world + 1), True, (255, 255, 255))
-            self.screen.blit(hint_text_down, (SCREEN_WIDTH - 200, SCREEN_HEIGHT - 80))
+        # ヒント矢印を描画(↑world n) - ブラウザ環境では常に表示
+        try:
+            # ブラウザ環境の判定
+            import os
+            is_browser = False
+        except ImportError:
+            is_browser = True
+
+        if is_browser:
+            # ブラウザ環境では常に全ワールドが解放されているので、常に矢印を表示
+            if self.selected_world > 1:
+                hint_text_up = self.guide_font.render("↑ World " + str(self.selected_world - 1), True, (255, 255, 255))
+                self.screen.blit(hint_text_up, (SCREEN_WIDTH - 200, self.title_area_height + 40))
+            if self.selected_world < 4:
+                hint_text_down = self.guide_font.render("↓ World " + str(self.selected_world + 1), True, (255, 255, 255))
+                self.screen.blit(hint_text_down, (SCREEN_WIDTH - 200, SCREEN_HEIGHT - 80))
+        else:
+            # デスクトップ環境では通常の表示ロジック
+            if self.selected_world > 1 and self.progress_manager.progress["unlocked_stages"].get(str(self.selected_world - 1), []):
+                hint_text_up = self.guide_font.render("↑ World " + str(self.selected_world - 1), True, (255, 255, 255))
+                self.screen.blit(hint_text_up, (SCREEN_WIDTH - 200, self.title_area_height + 40))
+            if self.selected_world < 4 and self.progress_manager.progress["unlocked_stages"].get(str(self.selected_world + 1), []):
+                hint_text_down = self.guide_font.render("↓ World " + str(self.selected_world + 1), True, (255, 255, 255))
+                self.screen.blit(hint_text_down, (SCREEN_WIDTH - 200, SCREEN_HEIGHT - 80))
 
     def _start_stage(self, world, stage):
         stage_file = self.stage_path.format(world, stage)
-        if os.path.exists(stage_file):
-            from .game_scene import GameScene
-            self.next_scene = GameScene(self.screen, self.sound_manager, stage_file)
-        else:
-            print(f"Stage file not found: {stage_file}")
+        try:
+            # デスクトップ環境
+            if os.path.exists(stage_file):
+                from .game_scene import GameScene
+                self.next_scene = GameScene(self.screen, self.sound_manager, stage_file)
+            else:
+                print(f"Stage file not found: {stage_file}")
+        except Exception:
+            # ブラウザ環境 - 存在チェックをスキップ
+            try:
+                from .game_scene import GameScene
+                self.next_scene = GameScene(self.screen, self.sound_manager, stage_file)
+            except Exception as e:
+                print(f"Failed to load stage: {e}")
 
     def _adjust_selection(self):
         """
@@ -234,77 +278,117 @@ class StageSelectScene(BaseScene):
             self.selected_stage = 1
 
     def process_event(self, event):
-        """
-        ステージ選択を制御しつつ、5回のアルファベット/数字入力が行われるたびに判定し、
-        失敗の場合は unmove を鳴らすサンプル。
-        """
-        #パスワード処理　(没)
-        if event.type == pygame.KEYDOWN:
-            # # 1) 入力された文字を取得 (大文字に統一)
-            # char = event.unicode.upper()
+        """イベント処理 - ブラウザ環境での最適化版"""
         
-            # # 英数字のみをバッファに追加
-            # if char.isalnum():
-            #     # 1) 追加
-            #     self.password_buffer += char
-                
-            #     # 2) デバッグ出力: 現在のバッファを表示
-            #     print(f"[DEBUG] Current buffer: {self.password_buffer}")
-                
-            #     # 3) 5文字に達したら判定
-            #     if len(self.password_buffer) == 5:
-            #         if self.password_buffer == self.secret_code:
-            #             # 成功 → EXワールド解放
-            #             if self.sound_manager:
-            #                 self.sound_manager.play("ex_open")
-            #             for stage_num in range(1, 5):
-            #                 self.progress_manager.unlock_stage(4, stage_num)
-            #             print("EX world unlocked by password LOGIC!")
-            #         else:
-            #             # 失敗 → unmove
-            #             if self.sound_manager:
-            #                 self.sound_manager.play("unmove")
-
-            #         # 判定後バッファリセット
-            #         self.password_buffer = ""
-                
+        # ブラウザ環境の判定
+        try:
+            import os
+            is_browser = False
+        except ImportError:
+            is_browser = True
+            
+        if event.type == pygame.KEYDOWN:
             # 左移動
             if event.key in MOVE_LEFT_KEYS:
-                unlocked = sorted(self.progress_manager.progress["unlocked_stages"].get(str(self.selected_world), []))
-                if self.selected_stage in unlocked:
-                    idx = unlocked.index(self.selected_stage)
+                if is_browser:
+                    # ブラウザ環境では単純にステージ番号を減らす
+                    if self.selected_stage > 1:
+                        self.selected_stage -= 1
+                        if self.sound_manager:
+                            self.sound_manager.play("select")
+                    else:
+                        if self.sound_manager:
+                            self.sound_manager.play("unmove")
                 else:
-                    idx = 0
-                if idx > 0:
-                    self.selected_stage = unlocked[idx - 1]
-                    if self.sound_manager:
-                        self.sound_manager.play("select")
-                else:
-                    if self.sound_manager:
-                        self.sound_manager.play("unmove")
+                    # デスクトップ環境では通常のロジック
+                    unlocked = sorted(self.progress_manager.progress["unlocked_stages"].get(str(self.selected_world), []))
+                    if self.selected_stage in unlocked:
+                        idx = unlocked.index(self.selected_stage)
+                    else:
+                        idx = 0
+                    if idx > 0:
+                        self.selected_stage = unlocked[idx - 1]
+                        if self.sound_manager:
+                            self.sound_manager.play("select")
+                    else:
+                        if self.sound_manager:
+                            self.sound_manager.play("unmove")
 
             # 右移動
             elif event.key in MOVE_RIGHT_KEYS:
-                unlocked = sorted(self.progress_manager.progress["unlocked_stages"].get(str(self.selected_world), []))
-                if self.selected_stage in unlocked:
-                    idx = unlocked.index(self.selected_stage)
+                if is_browser:
+                    # ブラウザ環境では単純にステージ番号を増やす
+                    max_stage = 3 if self.selected_world < 5 else 1
+                    if self.selected_stage < max_stage:
+                        self.selected_stage += 1
+                        if self.sound_manager:
+                            self.sound_manager.play("select")
+                    else:
+                        if self.sound_manager:
+                            self.sound_manager.play("unmove")
                 else:
-                    idx = 0
-                if idx < len(unlocked) - 1:
-                    self.selected_stage = unlocked[idx + 1]
-                    if self.sound_manager:
-                        self.sound_manager.play("select")
-                else:
-                    if self.sound_manager:
-                        self.sound_manager.play("unmove")
+                    # デスクトップ環境では通常のロジック
+                    unlocked = sorted(self.progress_manager.progress["unlocked_stages"].get(str(self.selected_world), []))
+                    if self.selected_stage in unlocked:
+                        idx = unlocked.index(self.selected_stage)
+                    else:
+                        idx = 0
+                    if idx < len(unlocked) - 1:
+                        self.selected_stage = unlocked[idx + 1]
+                        if self.sound_manager:
+                            self.sound_manager.play("select")
+                    else:
+                        if self.sound_manager:
+                            self.sound_manager.play("unmove")
 
             # 上移動 (ワールド切替)
             elif event.key in MOVE_UP_KEYS:
-                if self.selected_world == 1:
-                    if self.sound_manager:
-                        self.sound_manager.play("unmove")
+                if is_browser:
+                    # ブラウザ環境では単純にワールド番号を減らす
+                    if self.selected_world > 1:
+                        self.selected_world -= 1
+                        # 選択ステージを適切な範囲に調整
+                        max_stage = 3 if self.selected_world < 5 else 1
+                        self.selected_stage = min(self.selected_stage, max_stage)
+                        if self.sound_manager:
+                            self.sound_manager.play("select")
+                    else:
+                        if self.sound_manager:
+                            self.sound_manager.play("unmove")
                 else:
-                    new_world = max(1, self.selected_world - 1)
+                    # デスクトップ環境では通常のロジック
+                    if self.selected_world == 1:
+                        if self.sound_manager:
+                            self.sound_manager.play("unmove")
+                    else:
+                        new_world = max(1, self.selected_world - 1)
+                        if self.progress_manager.progress["unlocked_stages"].get(str(new_world), []):
+                            self.selected_world = new_world
+                            unlocked = sorted(self.progress_manager.progress["unlocked_stages"].get(str(new_world), []))
+                            self.selected_stage = unlocked[0] if unlocked else 1
+                            if self.sound_manager:
+                                self.sound_manager.play("select")
+                        else:
+                            if self.sound_manager:
+                                self.sound_manager.play("unmove")
+
+            # 下移動 (ワールド切替)
+            elif event.key in MOVE_DOWN_KEYS:
+                if is_browser:
+                    # ブラウザ環境では単純にワールド番号を増やす
+                    if self.selected_world < self.worlds:
+                        self.selected_world += 1
+                        # 選択ステージを適切な範囲に調整
+                        max_stage = 3 if self.selected_world < 5 else 1
+                        self.selected_stage = min(self.selected_stage, max_stage)
+                        if self.sound_manager:
+                            self.sound_manager.play("select")
+                    else:
+                        if self.sound_manager:
+                            self.sound_manager.play("unmove")
+                else:
+                    # デスクトップ環境では通常のロジック
+                    new_world = min(self.worlds, self.selected_world + 1)
                     if self.progress_manager.progress["unlocked_stages"].get(str(new_world), []):
                         self.selected_world = new_world
                         unlocked = sorted(self.progress_manager.progress["unlocked_stages"].get(str(new_world), []))
@@ -314,19 +398,6 @@ class StageSelectScene(BaseScene):
                     else:
                         if self.sound_manager:
                             self.sound_manager.play("unmove")
-
-            # 下移動 (ワールド切替)
-            elif event.key in MOVE_DOWN_KEYS:
-                new_world = min(self.worlds, self.selected_world + 1)
-                if self.progress_manager.progress["unlocked_stages"].get(str(new_world), []):
-                    self.selected_world = new_world
-                    unlocked = sorted(self.progress_manager.progress["unlocked_stages"].get(str(new_world), []))
-                    self.selected_stage = unlocked[0] if unlocked else 1
-                    if self.sound_manager:
-                        self.sound_manager.play("select")
-                else:
-                    if self.sound_manager:
-                        self.sound_manager.play("unmove")
 
             # タイトル画面へ戻る
             elif event.key == pygame.K_ESCAPE:
@@ -338,7 +409,7 @@ class StageSelectScene(BaseScene):
 
             # ステージ開始
             elif event.key in [pygame.K_RETURN, pygame.K_SPACE]:
-                if self.progress_manager.is_stage_unlocked(self.selected_world, self.selected_stage):
+                if is_browser or self.progress_manager.is_stage_unlocked(self.selected_world, self.selected_stage):
                     if self.sound_manager:
                         self.sound_manager.play("stage_in")
                     self._start_stage(self.selected_world, self.selected_stage)
@@ -348,16 +419,3 @@ class StageSelectScene(BaseScene):
             if self.sound_toggle_button.collidepoint(event.pos):
                 if self.sound_manager:
                     self.sound_manager.toggle_sound()
-
-
-    # def _unlock_ex_world(self):
-    #     # 例: world=4 が Exステージ
-    #     # 4-1,4-2,4-3,4-4 を全解放する
-    #     for stage_num in range(1, 5):
-    #         self.progress_manager.unlock_stage(4, stage_num)
-
-    #     # もしサウンドを流すなら
-    #     if self.sound_manager:
-    #         self.sound_manager.play("select")  # あるいは "stage_in" 等
-            
-        # print("[DEBUG] EX World (world=4) unlocked via password!")

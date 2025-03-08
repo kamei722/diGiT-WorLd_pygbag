@@ -30,13 +30,23 @@ class Player:
         self.sound_manager = sound_manager
         self.max_fall_speed = SCREEN_HEIGHT * 0.026
 
-        # 画像の読み込み
-        self.image_right = pygame.image.load(os.path.join(BASE_DIR, "num_right.png")).convert_alpha()
-        self.image_left = pygame.image.load(os.path.join(BASE_DIR, "num_left.png")).convert_alpha()
+        # 画像の読み込み - ブラウザ環境に合わせて修正
+        try:
+            self.image_right = pygame.image.load(resource_path("assets/pics/num_right.png")).convert_alpha()
+            self.image_left = pygame.image.load(resource_path("assets/pics/num_left.png")).convert_alpha()
+        except Exception as e:
+            print(f"Failed to load player images: {e}")
+            # 画像が読み込めない場合のフォールバック
+            self.image_right = pygame.Surface((self.width, self.height))
+            self.image_right.fill((255, 0, 0))  # 赤い四角形
+            self.image_left = pygame.Surface((self.width, self.height))
+            self.image_left.fill((255, 0, 0))  # 赤い四角形
+            
         self.image_right = pygame.transform.scale(self.image_right, (self.width, self.height))
         self.image_left = pygame.transform.scale(self.image_left, (self.width, self.height))
 
         self.facing_left = False
+        self.debug_mode = False
 
     def set_debug_mode(self, enabled: bool):
         self.debug_mode = enabled
@@ -48,6 +58,7 @@ class Player:
         self.key_count += 1
         if self.sound_manager:
             self.sound_manager.play("pickup")
+
 
     def update(self, dt, keys, digits, space_pressed_this_frame, items=None, stage_manager=None):
         """

@@ -3,7 +3,7 @@ import pygame
 import os
 import re
 import math
-from game.game_utils import SCREEN_WIDTH, SCREEN_HEIGHT, FPS,FONT_PATH, STAGE_CLEAR_DISPLAY_TIME
+from game.game_utils import SCREEN_WIDTH, SCREEN_HEIGHT, FPS,FONT_PATH, STAGE_CLEAR_DISPLAY_TIME,resource_path
 from .base_scene import BaseScene
 from game.objects.player import Player
 from game.managers.stagemanager import StageManager
@@ -55,28 +55,34 @@ class GameScene(BaseScene):
         self.world = 1
         self.stage = 1
         
-        self.font = pygame.font.Font(FONT_PATH, int(SCREEN_HEIGHT * 0.04))
+        # ステージ情報を早期に抽出
+        match = re.search(r"stage(\d+)-(\d+)\.json", stage_file)
+        if match:
+            self.world = int(match.group(1))
+            self.stage = int(match.group(2))
 
+        # フォントの一括ロード
+        self._load_fonts()
+        
+        # チュートリアル関連の初期化
         self.show_tutorial = False
-        if re.search(r"stage1-1\.json$", stage_file):
+        self.tutorial_text_surfs = []  # 事前レンダリング用
+        
+        # ステージ1-1のチュートリアル準備
+        if self.world == 1 and self.stage == 1:
             self.show_tutorial = True
-            # チュートリアル表示用フォント
-            self.tutorial_font = pygame.font.Font(FONT_PATH, int(SCREEN_HEIGHT * 0.035))
-
-            import os
-            key_image_path = os.path.join(os.path.dirname(__file__), "..", "..", "assets", "pics", "key.png")
-            if os.path.exists(key_image_path):
-                self.key_image = pygame.image.load(key_image_path).convert_alpha()
-            else:
-                self.key_image = None
-
+            self._prepare_tutorial()
+        
+        # ステージマネージャーの初期化
         self.stage_manager = StageManager(self.sound_manager)
         self.stage_manager.load_stage(self.stage_file)
         
+        # プレイヤーと項目の初期化
         self.player = None
         self.items = []
         self.prev_space = False
 
+        # UI要素の初期化
         self.key_streak = KeyStreak(
             int(SCREEN_WIDTH * 0.0625),
             int(SCREEN_HEIGHT * 0.1)
@@ -87,25 +93,69 @@ class GameScene(BaseScene):
             int(SCREEN_HEIGHT * 0.03)
         )
         
-        self._initialize_game()
-
+        # カメラの初期化
         self.use_scroll = False
         self.camera_offset_x = 0
         self.camera_offset_y = 0
         self.initial_camera_set = False
         self.camera_accumulator = 0.0
+        
+        # 最終ステージの特別設定
+        if self.world == 4 and self.stage == 3:
+            self._setup_final_stage()
+        
+        # ゲームの初期化
+        self._initialize_game()
 
-
-        match = re.search(r"stage(\d+)-(\d+)\.json", stage_file)
-        if match:
-            self.world = int(match.group(1))
-            self.stage = int(match.group(2))
-
-            if self.world == 4 and self.stage == 3:
-                self.use_scroll = True
-                self.show_peak_message = True
-                self.sound_manager.play_music("stage_4-3.mp3") 
-                self.peak_message_start_time = pygame.time.get_ticks()
+    def _load_fonts(self):
+        """すべてのフォントを初期化時にロード"""
+        font_full_path = resource_path(FONT_PATH)
+        
+        try:
+            # メインフォント
+            self.font = pygame.font.Font(font_full_path, int(SCREEN_HEIGHT * 0.04))
+            
+            # 各目的別のフォントを一度に読み込み
+            self.tutorial_font = pygame.font.Font(font_full_path, int(SCREEN_HEIGHT * 0.035))
+            self.mission_font = pygame.font.Font(font_full_path, int(SCREEN_HEIGHT * 0.05))
+            self.t_font = pygame.font.Font(font_full_path, int(SCREEN_HEIGHT * 0.03))
+            self.clear_font = pygame.font.Font(font_full_path, int(SCREEN_HEIGHT * 0.15))
+            self.peak_font = pygame.font.Font(font_full_path, int(SCREEN_HEIGHT * 0.1))
+            self.game_clear_font = pygame.font.Font(font_full_path, int(SCREEN_HEIGHT * 0.2))
+        except Exception as e:
+            print(f"Failed to load font: {e}")
+            # システムフォントへのフォールバック
+            self.font = pygame.font.SysFont(None, int(SCREEN_HEIGHT * 0.04))
+            self.tutorial_font = pygame.font.SysFont(None, int(SCREEN_HEIGHT * 0.035))
+            self.mission_font = pygame.font.SysFont(None, int(SCREEN_HEIGHT * 0.05))
+            self.t_font = pygame.font.SysFont(None, int(SCREEN_HEIGHT * 0.03))
+            self.clear_font = pygame.font.SysFont(None, int(SCREEN_HEIGHT * 0.15))
+            self.peak_font = pygame.font.SysFont(None, int(SCREEN_HEIGHT * 0.1))
+            self.game_clear_font = pygame.font.SysFont(None, int(SCREEN_HEIGHT * 0.2))
+        
+    def _prepare_tutorial(self):
+            """チュートリアルテキストを事前レンダリング"""
+            # ミッションテキストを事前レンダリング
+            self.mission_text = self.mission_font.render("カギをのがすな!!", True, (255, 255, 255))
+            
+            # チュートリアル行を事前レンダリング
+            tutorial_lines = [
+                "　　　　　　     W ↑ Space ",
+                " A ← | S ↓ | D →",
+                "Esc : 戻る"
+            ]
+            
+            self.tutorial_text_surfs = []
+            for line in tutorial_lines:
+                surf = self.t_font.render(line, True, (255, 255, 255))
+                self.tutorial_text_surfs.append(surf)
+                
+            # 鍵画像の読み込み
+            try:
+                self.key_image = pygame.image.load(resource_path("assets/pics/key.png")).convert_alpha()
+            except Exception as e:
+                print(f"Failed to load key image: {e}")
+                self.key_image = None
 
                 
 
@@ -135,7 +185,7 @@ class GameScene(BaseScene):
         if self.world == 4 and self.stage == 3:
             self.use_scroll = True
             #self.show_peak_message = True
-            self.sound_manager.play_music("stage_4-3.mp3") 
+            self.sound_manager.play_music("stage_4-3.ogg") 
             #self.peak_message_start_time = pygame.time.get_ticks()
             target_cam_x = self.player.x + self.player.width / 2 - SCREEN_WIDTH / 2
             target_cam_y = self.player.y + self.player.height / 2 - SCREEN_HEIGHT / 2
@@ -233,6 +283,7 @@ class GameScene(BaseScene):
         """ゲーム画面の描画"""
         self.screen.fill((0, 0, 0))
 
+        # ゲームオブジェクトの描画
         for digit in self.stage_manager.digits:
             digit.draw(self.screen, self.camera_offset_x, self.camera_offset_y)
         for item in self.items:
@@ -241,13 +292,12 @@ class GameScene(BaseScene):
         for enemy in self.stage_manager.active_enemies:
             enemy.draw(self.screen, self.camera_offset_x, self.camera_offset_y)
 
+        # 最終ステージのメッセージ表示または通常のUI表示
         if (self.world == 4 and self.stage == 3) and self.show_peak_message:
             self._draw_peak_message()
-
         else:
-            self.key_streak.draw(self.screen, self.stage_manager.consecutive_keys,self.stage_manager.target_keys)
-            
-            # SequenceProgressの描画
+            # キーストリークとシーケンス進行状況の描画
+            self.key_streak.draw(self.screen, self.stage_manager.consecutive_keys, self.stage_manager.target_keys)
             self.sequence_progress.draw(
                 self.screen,
                 self.stage_manager.current_sequence_index,
@@ -256,76 +306,37 @@ class GameScene(BaseScene):
 
         # ステージクリア表示
         if self.game_state == "stage_clear":
+            self._draw_stage_clear()
 
-            # Game clear 表示
-            if self.stage_manager.final_stage and self.world == 4 and self.stage == 3:
-                current_time = pygame.time.get_ticks()
-                shake_offset = math.sin(current_time * 0.005) * 10
-
-                if self.stage_manager.final_stage and self.world == 4 and self.stage == 3:
-                    base_font_size = int(SCREEN_HEIGHT * 0.2)  # 通常より大きいフォントサイズ
-                    clear_font = pygame.font.Font(FONT_PATH, base_font_size)
-                    # 明るい赤 + 暗い赤
-                    clear_text = clear_font.render("Game Cleared!", True, (255, 80, 80))
-                    clear_rect = clear_text.get_rect(center=(SCREEN_WIDTH // 2 + shake_offset, SCREEN_HEIGHT // 2 + shake_offset))
-                    shadow_text = clear_font.render("Game Cleared!", True, (100, 0, 0))
-                    shadow_rect = shadow_text.get_rect(center=(SCREEN_WIDTH // 2 + 8 + shake_offset, SCREEN_HEIGHT // 2 + 8 + shake_offset))
-                    
-                    self.screen.blit(shadow_text, shadow_rect)
-                    self.screen.blit(clear_text, clear_rect)
-            else:
-                # 通常のステージクリア表示
-                clear_font = pygame.font.Font(FONT_PATH, int(SCREEN_HEIGHT * 0.15))
-                clear_text = clear_font.render("Stage Cleared!", True, (200, 200, 0))
-                
-                # 黄色　+ 暗い黄色
-                offset = math.sin(pygame.time.get_ticks() * 0.005) * 10
-                clear_rect = clear_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + offset))
-                shadow_text = clear_font.render("Stage Cleared!", True, (100, 100, 0))
-                shadow_rect = shadow_text.get_rect(center=(SCREEN_WIDTH // 2 + 4, SCREEN_HEIGHT // 2 + 4 + offset))
-                
-                self.screen.blit(shadow_text, shadow_rect)
-                self.screen.blit(clear_text, clear_rect)
-
-
-         # 操作方法描画
+        # チュートリアル表示
         if self.show_tutorial:
-            mission_font = pygame.font.Font(FONT_PATH, int(SCREEN_HEIGHT * 0.05))
-            mission_text = mission_font.render("カギをのがすな!!", True, (255, 255, 255))
-            top_margin_x = int(SCREEN_WIDTH * 0.05)
-            top_margin_y = int(SCREEN_HEIGHT * 0.05)
+            self._draw_tutorial()
 
-            mission_x = (SCREEN_WIDTH - top_margin_x) - mission_text.get_width()
-            mission_y = top_margin_y
-            self.screen.blit(mission_text, (mission_x, mission_y))
+    def _draw_tutorial(self):
+        """事前レンダリングされたチュートリアルテキストを描画"""
+        top_margin_x = int(SCREEN_WIDTH * 0.05)
+        top_margin_y = int(SCREEN_HEIGHT * 0.05)
 
-            tutorial_lines = [
-                
-                "　　　　　　     W ↑ Space ",
-                " A ← | S ↓ | D →",
-                "Esc : 戻る"
-                
-            ]
-            t_font = pygame.font.Font(FONT_PATH, int(SCREEN_HEIGHT * 0.03))
+        # ミッションテキスト描画（右寄せ）
+        mission_x = (SCREEN_WIDTH - top_margin_x) - self.mission_text.get_width()
+        mission_y = top_margin_y
+        self.screen.blit(self.mission_text, (mission_x, mission_y))
 
-            bottom_margin_x = int(SCREEN_WIDTH * 0.05)
-            bottom_margin_y = int(SCREEN_HEIGHT * 0.05)
+        # チュートリアル指示の描画
+        bottom_margin_x = int(SCREEN_WIDTH * 0.05)
+        bottom_margin_y = int(SCREEN_HEIGHT * 0.05)
 
-            total_height = 0
-            text_surfs = []
-            for line in tutorial_lines:
-                surf = t_font.render(line, True, (255, 255, 255))
-                text_surfs.append(surf)
-                total_height += surf.get_height() + 6  # 行間6px
+        # 全テキストサーフェスの合計高さを計算
+        total_height = sum(surf.get_height() for surf in self.tutorial_text_surfs) + 6 * (len(self.tutorial_text_surfs) - 1)
+        start_y = SCREEN_HEIGHT - bottom_margin_y - total_height
 
-            start_y = SCREEN_HEIGHT - bottom_margin_y - total_height
-
-            ty = start_y
-            for surf in text_surfs:
-                # 右寄せ
-                tx = (SCREEN_WIDTH - bottom_margin_x) - surf.get_width()
-                self.screen.blit(surf, (tx, ty))
-                ty += surf.get_height() + 6
+        # 各事前レンダリング行を描画
+        ty = start_y
+        for surf in self.tutorial_text_surfs:
+            # 右寄せテキスト
+            tx = (SCREEN_WIDTH - bottom_margin_x) - surf.get_width()
+            self.screen.blit(surf, (tx, ty))
+            ty += surf.get_height() + 6
 
 
     def process_event(self, event):
@@ -354,20 +365,54 @@ class GameScene(BaseScene):
             self.sound_manager.stop_music()
 
     def _draw_peak_message(self):
+        """最終ステージのピークメッセージ描画"""
         if not self.show_peak_message:
             return
 
         current_time = pygame.time.get_ticks()
         elapsed = current_time - self.peak_message_start_time
-        display_duration = 5000 
+        display_duration = 5000  # 5秒間表示
 
         if elapsed < display_duration:
-            peak_font = pygame.font.Font(FONT_PATH, int(SCREEN_HEIGHT * 0.1))
-            text_surf = peak_font.render("頂点を目指せ！！", True, (255, 255, 0))
-            text_rect = text_surf.get_rect(
+            # 事前レンダリングされたピークメッセージを使用
+            text_rect = self.peak_message.get_rect(
                 center=(SCREEN_WIDTH // 2, int(SCREEN_HEIGHT * 0.1))
             )
-                        
-            self.screen.blit(text_surf, text_rect)
+            self.screen.blit(self.peak_message, text_rect)
+    
+    def _setup_final_stage(self):
+        """最終ステージ（4-3）の設定"""
+        self.use_scroll = True
+        self.show_peak_message = True
+        self.sound_manager.play_music("stage_4-3.ogg") 
+        self.peak_message_start_time = pygame.time.get_ticks()
+        # ピークメッセージを事前レンダリング
+        self.peak_message = self.peak_font.render("頂点を目指せ！！", True, (255, 255, 0))
+
+    def _draw_stage_clear(self):
+        """ステージクリアまたはゲームクリアメッセージの描画"""
+        # ゲームクリア表示（最終ステージの場合）
+        if self.stage_manager.final_stage and self.world == 4 and self.stage == 3:
+            current_time = pygame.time.get_ticks()
+            shake_offset = math.sin(current_time * 0.005) * 10
+
+            # 事前にロードしたゲームクリアフォントを使用
+            clear_text = self.game_clear_font.render("Game Cleared!", True, (255, 80, 80))
+            clear_rect = clear_text.get_rect(center=(SCREEN_WIDTH // 2 + shake_offset, SCREEN_HEIGHT // 2 + shake_offset))
+            shadow_text = self.game_clear_font.render("Game Cleared!", True, (100, 0, 0))
+            shadow_rect = shadow_text.get_rect(center=(SCREEN_WIDTH // 2 + 8 + shake_offset, SCREEN_HEIGHT // 2 + 8 + shake_offset))
             
+            self.screen.blit(shadow_text, shadow_rect)
+            self.screen.blit(clear_text, clear_rect)
+        else:
+            # 通常のステージクリア表示
+            clear_text = self.clear_font.render("Stage Cleared!", True, (200, 200, 0))
+            
+            offset = math.sin(pygame.time.get_ticks() * 0.005) * 10
+            clear_rect = clear_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + offset))
+            shadow_text = self.clear_font.render("Stage Cleared!", True, (100, 100, 0))
+            shadow_rect = shadow_text.get_rect(center=(SCREEN_WIDTH // 2 + 4, SCREEN_HEIGHT // 2 + 4 + offset))
+            
+            self.screen.blit(shadow_text, shadow_rect)
+            self.screen.blit(clear_text, clear_rect)      
         
